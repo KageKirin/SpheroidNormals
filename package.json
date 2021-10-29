@@ -1,0 +1,33 @@
+{
+    "name": "com.kagekirin.spheroid-normals",
+    "version": "0.0.1",
+    "displayName": "Spheroid Normals",
+    "description": "Controller to render spheroid normals",
+    "unity": "2021.1",
+    "dependencies": {
+        "com.unity.render-pipelines.universal": "11.0.0",
+        "com.unity.burst": "1.6.0",
+        "com.unity.mathematics": "1.2.4",
+        "com.unity.jobs": "0.11.0-preview.6"
+   },
+   "keywords": [
+        "shader",
+        "mesh",
+        "urp",
+        "Universal Render Pipeline"
+    ],
+    "author": {
+        "name": "KageKirin",
+        "email": "kagekirin@gmail.com",
+        "url": "https://github.com/kagekirin"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/KageKirin/SpheroidNormals.git",
+        "directory": "com.kagekirin.spheroid-normals"
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com/@kagekirin"
+    }
+}
+
