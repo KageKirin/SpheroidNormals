@@ -1,0 +1,9 @@
+{
+    "name": "KageKirin.SpheroidNormal",
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "references": [
+        "Unity.Burst",
+        "Unity.Mathematics"
+    ]
+}
