@@ -16,26 +16,12 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14
+
       - name: Pack
         run: npm pack
       - name: Verify
         run: tar tvf com.kagekirin.spheroid-normals*.tgz
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: com.kagekirin.spheroid-normals-${{ github.ref }}.tgz
-          path: com.kagekirin.spheroid-normals*.tgz
 
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 14
-          registry-url: https://npm.pkg.github.com/
-          scope: '@kagekirin'
       - name: Create release
         uses: actions/create-release@v1
         id: create_release
@@ -47,10 +33,12 @@ jobs:
           body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ github.TOKEN }}
-      - name: Fetch release artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: com.kagekirin.spheroid-normals-${{ github.ref }}.tgz
+
+      - name: Publish to GitHub NPM Registry
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
       - name: Upload release artifacts
         uses: actions/upload-release-asset@v1
         env:
@@ -60,21 +48,3 @@ jobs:
           asset_path: com.kagekirin.spheroid-normals-${{ github.ref }}.tgz
           asset_name: com.kagekirin.spheroid-normals-${{ github.ref }}.tgz
           asset_content_type: application/gzip
-
-  publish-gpr:
-    needs: release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 14
-          registry-url: https://npm.pkg.github.com/
-          scope: '@kagekirin'
-      - name: Publish to GitHub NPM Registry
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
