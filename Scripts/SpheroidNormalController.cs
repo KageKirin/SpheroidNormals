@@ -15,6 +15,7 @@ namespace KageKirin.SpheroidNormal
     public class SpheroidNormalController : MonoBehaviour
     {
         [Header("Shader Control")]
+        public bool  _usePassthroughMeanBonePosition = false;
         public bool  _normalHull      = false;
         public float _normalHullScale = 0.0f;
 
@@ -165,7 +166,6 @@ namespace KageKirin.SpheroidNormal
             _initComplete = true;
             _material.EnableKeyword("SPHEROID_NORMAL_BUFFER_ON");
             _materialPropertyBlock.SetInteger("EnableSpheroidNormals", _initComplete ? 1 : 0);
-            _materialPropertyBlock.SetInteger("InitComplete", _initComplete ? 1 : 0);
             _materialPropertyBlock.SetInteger("NormalHull", _normalHull ? 1 : 0);
             _materialPropertyBlock.SetFloat("NormalHullScale", _normalHullScale);
 
@@ -312,7 +312,7 @@ namespace KageKirin.SpheroidNormal
             if (_materialPropertyBlock != null)
             {
                 _skinnedMeshRenderer.GetPropertyBlock(_materialPropertyBlock);
-                _materialPropertyBlock.SetInteger("InitComplete", _initComplete ? 1 : 0);
+                _materialPropertyBlock.SetInteger("_UsePassthroughMeanBonePosition", _usePassthroughMeanBonePosition ? 1 : 0);
                 _materialPropertyBlock.SetInteger("_NormalHull", _normalHull ? 1 : 0);
                 _materialPropertyBlock.SetFloat("_NormalHullScale", _normalHullScale);
                 _skinnedMeshRenderer.SetPropertyBlock(_materialPropertyBlock);
@@ -331,10 +331,19 @@ namespace KageKirin.SpheroidNormal
 
             // ensure job completion
             _updateMeanBonePositionsJobHandle.Complete();
-            if (false && _meanBonePositionBuffer != null && _meanBonePositions != null)
+            if (_meanBonePositionBuffer != null && _meanBonePositions != null)
             {
                 _meanBonePositionBuffer.SetData(_updateMeanBonePositionsJob.outBonePositions);
             }
+
+            if (_materialPropertyBlock != null)
+            {
+                _skinnedMeshRenderer.GetPropertyBlock(_materialPropertyBlock);
+                _materialPropertyBlock.SetBuffer("BonePositions", _bonePositionBuffer);
+                _materialPropertyBlock.SetBuffer("MeanBonePositions", _meanBonePositionBuffer);
+                _skinnedMeshRenderer.SetPropertyBlock(_materialPropertyBlock);
+            }
+
         }
 #endregion // update cycle
     }

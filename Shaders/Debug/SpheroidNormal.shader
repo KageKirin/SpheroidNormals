@@ -9,7 +9,7 @@ Shader "SpheroidNormal/Debug/SpheroidNormal"
         _EnableSpheroidNormals("Enable Spheroid Normals", Int) = 0
 
         [PerRendererData]
-        _InitComplete("(internal) set when buffer init complete", Int) = 0
+        _UsePassthroughMeanBonePosition("Use Mean Bone Position (instead of Computed one)", Int) = 0
 
         [PerRendererData]
         _NormalHull("Flag to render normal hull", Int) = 0
@@ -64,7 +64,7 @@ Shader "SpheroidNormal/Debug/SpheroidNormal"
             // This macro declares the sampler for the _BaseMap texture.
             SAMPLER(sampler_BaseMap);
 
-            int _InitComplete;
+            int _UsePassthroughMeanBonePosition;
             int _NormalHull;
             float _NormalHullScale;
 
@@ -89,36 +89,30 @@ Shader "SpheroidNormal/Debug/SpheroidNormal"
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
 
 #if SPHEROID_NORMAL_BUFFER_ON
-                if (_InitComplete)
+                int4   boneIndices = BoneIndices[IN.vertexID];
+                float4 boneWeights = BoneWeights[IN.vertexID];
+
+                float3 passthroughMeanBonePosition = MeanBonePositions[IN.vertexID];
+                float3 computedMeanBonePosition    = BonePositions[int(boneIndices.x)] * boneWeights.x  //
+                                                    + BonePositions[int(boneIndices.y)] * boneWeights.y  //
+                                                    + BonePositions[int(boneIndices.z)] * boneWeights.z  //
+                                                    + BonePositions[int(boneIndices.w)] * boneWeights.w;
+
+                OUT.passthroughMeanBonePosition = passthroughMeanBonePosition;
+                OUT.computedMeanBonePosition    = computedMeanBonePosition;
+
+                float3 positionOS = IN.positionOS.xyz;
+
+                if (_NormalHull)
                 {
-                    int4   boneIndices = BoneIndices[IN.vertexID];
-                    float4 boneWeights = BoneWeights[IN.vertexID];
-
-                    float3 passthroughMeanBonePosition = MeanBonePositions[IN.vertexID];
-                    float3 computedMeanBonePosition    = BonePositions[int(boneIndices.x)] * boneWeights.x  //
-                                                       + BonePositions[int(boneIndices.y)] * boneWeights.y  //
-                                                       + BonePositions[int(boneIndices.z)] * boneWeights.z  //
-                                                       + BonePositions[int(boneIndices.w)] * boneWeights.w;
-
-                    OUT.passthroughMeanBonePosition = passthroughMeanBonePosition;
-                    OUT.computedMeanBonePosition    = computedMeanBonePosition;
-
-                    float3 positionOS = IN.positionOS.xyz;
-
-                    if (_NormalHull)
-                    {
-                        float3 meanBonePosition = computedMeanBonePosition;
-                        positionOS = meanBonePosition + normalize(positionOS - meanBonePosition) * _NormalHullScale;
-                    }
-
-                    OUT.positionHCS = TransformObjectToHClip(positionOS);
+                    float3 meanBonePosition = computedMeanBonePosition;
+                    positionOS = positionOS + normalize(positionOS - meanBonePosition) * _NormalHullScale;
                 }
-                else
-#else
-                {
-                    OUT.passthroughMeanBonePosition = float3(0,0,0);
-                    OUT.computedMeanBonePosition = float3(0,0,0);
-                }
+
+                OUT.positionHCS = TransformObjectToHClip(positionOS);
+#else // !SPHEROID_NORMAL_BUFFER_ON
+                OUT.passthroughMeanBonePosition = float3(0,0,0);
+                OUT.computedMeanBonePosition = float3(0,0,0);
 #endif // SPHEROID_NORMAL_BUFFER_ON
 
                 // The TRANSFORM_TEX macro performs the tiling and offset
@@ -130,18 +124,11 @@ Shader "SpheroidNormal/Debug/SpheroidNormal"
 
             half4 frag(Varyings IN) : SV_Target
             {
-#if SPHEROID_NORMAL_BUFFER_ON
-                return half4(0, 0, 1, 1);
-#endif // SPHEROID_NORMAL_BUFFER_ON
-                if (_InitComplete)
+                if (_UsePassthroughMeanBonePosition)
                 {
-                    //return half4(0, 1, 0, 1);
-                    return half4(IN.computedMeanBonePosition, 0.5);
+                    return half4(IN.passthroughMeanBonePosition, 1);
                 }
-                else
-                {
-                    return half4(1, 0, 0, 1);
-                }
+                return half4(IN.computedMeanBonePosition, 1);
             }
             ENDHLSL
         }
