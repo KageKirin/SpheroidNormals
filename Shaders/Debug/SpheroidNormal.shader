@@ -5,6 +5,9 @@ Shader "SpheroidNormal/Debug/SpheroidNormal"
     // called Base Map.
     Properties
     {
+        [Toggle(SPHEROID_NORMAL_BUFFER_ON)]
+        _EnableSpheroidNormals("Enable Spheroid Normals", Int) = 0
+
         [PerRendererData]
         _InitComplete("(internal) set when buffer init complete", Int) = 0
 
@@ -132,8 +135,8 @@ Shader "SpheroidNormal/Debug/SpheroidNormal"
 #endif // SPHEROID_NORMAL_BUFFER_ON
                 if (_InitComplete)
                 {
-                    return half4(0, 1, 0, 1);
-                    //return half4(IN.computedMeanBonePosition, 0.5);
+                    //return half4(0, 1, 0, 1);
+                    return half4(IN.computedMeanBonePosition, 0.5);
                 }
                 else
                 {

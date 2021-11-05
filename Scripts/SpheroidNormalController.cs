@@ -22,6 +22,7 @@ namespace KageKirin.SpheroidNormal
         [Header("made public for debug")]
         // instance data
         public SkinnedMeshRenderer   _skinnedMeshRenderer;
+        public Material _material;
         public MaterialPropertyBlock _materialPropertyBlock;
 
         // per-vertex bone indices
@@ -147,21 +148,26 @@ namespace KageKirin.SpheroidNormal
 
         void InitializeMaterialBlock()
         {
+            // instantiate material
+            _material = Material.Instantiate(_skinnedMeshRenderer.sharedMaterial);
+            _skinnedMeshRenderer.material = _material;
+
             _materialPropertyBlock = _materialPropertyBlock ?? new MaterialPropertyBlock();
             if (_skinnedMeshRenderer.HasPropertyBlock())
             {
                 _skinnedMeshRenderer.GetPropertyBlock(_materialPropertyBlock);
             }
-            //_materialPropertyBlock.SetBuffer("BoneIndices", _boneIndexBuffer);
-            //_materialPropertyBlock.SetBuffer("BoneWeights", _boneWeightBuffer);
-            //_materialPropertyBlock.SetBuffer("BonePositions", _bonePositionBuffer);
-            //_materialPropertyBlock.SetBuffer("MeanBonePositions", _meanBonePositionBuffer);
+            _materialPropertyBlock.SetBuffer("BoneIndices", _boneIndexBuffer);
+            _materialPropertyBlock.SetBuffer("BoneWeights", _boneWeightBuffer);
+            _materialPropertyBlock.SetBuffer("BonePositions", _bonePositionBuffer);
+            _materialPropertyBlock.SetBuffer("MeanBonePositions", _meanBonePositionBuffer);
 
             _initComplete = true;
-            _materialPropertyBlock.SetInt("InitComplete", _initComplete ? 1 : 0);
-            _materialPropertyBlock.SetInt("NormalHull", _normalHull ? 1 : 0);
+            _material.EnableKeyword("SPHEROID_NORMAL_BUFFER_ON");
+            _materialPropertyBlock.SetInteger("EnableSpheroidNormals", _initComplete ? 1 : 0);
+            _materialPropertyBlock.SetInteger("InitComplete", _initComplete ? 1 : 0);
+            _materialPropertyBlock.SetInteger("NormalHull", _normalHull ? 1 : 0);
             _materialPropertyBlock.SetFloat("NormalHullScale", _normalHullScale);
-            //_skinnedMeshRenderer.material.EnableKeyword("SPHEROID_NORMAL_BUFFER_ON");
 
             _skinnedMeshRenderer.SetPropertyBlock(_materialPropertyBlock);
         }
@@ -182,6 +188,7 @@ namespace KageKirin.SpheroidNormal
 
                 Debug.Assert(_transformAccessArray.isCreated);
                 Debug.Assert(_materialPropertyBlock != null);
+                Debug.Assert(_material != null);
                 Debug.Assert(_skinnedMeshRenderer != null);
             }
             else
@@ -198,6 +205,7 @@ namespace KageKirin.SpheroidNormal
 
                 Debug.Assert(!_transformAccessArray.isCreated);
                 Debug.Assert(_materialPropertyBlock == null);
+                Debug.Assert(_material == null);
                 Debug.Assert(_skinnedMeshRenderer == null);
             }
         }
@@ -210,7 +218,7 @@ namespace KageKirin.SpheroidNormal
         {
             Debug.Log($"{name}.OnDisable()");
             ReleaseEverything();
-            AssertInternalState(false);
+            //AssertInternalState(false);
         }
 
         private void ReleaseEverything()
@@ -304,8 +312,8 @@ namespace KageKirin.SpheroidNormal
             if (_materialPropertyBlock != null)
             {
                 _skinnedMeshRenderer.GetPropertyBlock(_materialPropertyBlock);
-                _materialPropertyBlock.SetInt("InitComplete", _initComplete ? 1 : 0);
-                _materialPropertyBlock.SetInt("_NormalHull", _normalHull ? 1 : 0);
+                _materialPropertyBlock.SetInteger("InitComplete", _initComplete ? 1 : 0);
+                _materialPropertyBlock.SetInteger("_NormalHull", _normalHull ? 1 : 0);
                 _materialPropertyBlock.SetFloat("_NormalHullScale", _normalHullScale);
                 _skinnedMeshRenderer.SetPropertyBlock(_materialPropertyBlock);
             }
