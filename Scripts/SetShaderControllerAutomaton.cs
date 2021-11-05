@@ -51,10 +51,6 @@ namespace KageKirin.SpheroidNormal
             SkinnedMeshRenderer[] skinnedMeshRenderers = (
                 from smr in obj.GetComponentsInChildren<SkinnedMeshRenderer>()
                 where (
-                    (from mat in smr.materials
-                    where TargetedShaders.Contains(mat.shader)
-                    select true).Count() > 0
-                    ||
                     (from mat in smr.sharedMaterials
                     where TargetedShaders.Contains(mat.shader)
                     select true).Count() > 0)
