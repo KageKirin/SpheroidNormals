@@ -150,10 +150,18 @@ namespace KageKirin.SpheroidNormal
         void InitializeMaterialBlock()
         {
             // instantiate material
-            _material = Material.Instantiate(_skinnedMeshRenderer.sharedMaterial);
-            _skinnedMeshRenderer.material = _material;
+            if (_material == null)
+            {
+                _material = Material.Instantiate(_skinnedMeshRenderer.sharedMaterial);
+                _skinnedMeshRenderer.material = _material;
+            }
 
-            _materialPropertyBlock = _materialPropertyBlock ?? new MaterialPropertyBlock();
+            // create material property block
+            if (_materialPropertyBlock == null)
+            {
+                _materialPropertyBlock = new MaterialPropertyBlock();
+            }
+
             if (_skinnedMeshRenderer.HasPropertyBlock())
             {
                 _skinnedMeshRenderer.GetPropertyBlock(_materialPropertyBlock);
