@@ -23,7 +23,6 @@ namespace KageKirin.SpheroidNormal
         [Header("made public for debug")]
         // instance data
         public SkinnedMeshRenderer   _skinnedMeshRenderer;
-        public Material _material;
         public MaterialPropertyBlock _materialPropertyBlock;
 
         // per-vertex bone indices
@@ -155,13 +154,6 @@ namespace KageKirin.SpheroidNormal
 
         void InitializeMaterialBlock()
         {
-            // instantiate material
-            if (_material == null)
-            {
-                _material = Material.Instantiate(_skinnedMeshRenderer.sharedMaterial);
-                _skinnedMeshRenderer.material = _material;
-            }
-
             // create material property block
             if (_materialPropertyBlock == null)
             {
@@ -178,7 +170,6 @@ namespace KageKirin.SpheroidNormal
             _materialPropertyBlock.SetBuffer("MeanBonePositions", _meanBonePositionBuffer);
 
             _initComplete = true;
-            _material.EnableKeyword("SPHEROID_NORMAL_BUFFER_ON");
             _materialPropertyBlock.SetInteger("EnableSpheroidNormals", _initComplete ? 1 : 0);
             _materialPropertyBlock.SetInteger("NormalHull", _normalHull ? 1 : 0);
             _materialPropertyBlock.SetFloat("NormalHullScale", _normalHullScale);
@@ -202,7 +193,6 @@ namespace KageKirin.SpheroidNormal
 
                 Debug.Assert(_transformAccessArray.isCreated);
                 Debug.Assert(_materialPropertyBlock != null);
-                Debug.Assert(_material != null);
                 Debug.Assert(_skinnedMeshRenderer != null);
             }
             else
@@ -219,7 +209,6 @@ namespace KageKirin.SpheroidNormal
 
                 Debug.Assert(!_transformAccessArray.isCreated);
                 Debug.Assert(_materialPropertyBlock == null);
-                Debug.Assert(_material == null);
                 Debug.Assert(_skinnedMeshRenderer == null);
             }
         }
