@@ -11,7 +11,7 @@ using Unity.Mathematics;
 namespace KageKirin.SpheroidNormal
 {
     [DisallowMultipleComponent]
-    //[ExecuteInEditMode]
+    [ExecuteInEditMode]
     public class SpheroidNormalController : MonoBehaviour
     {
         [Header("Shader Control")]
