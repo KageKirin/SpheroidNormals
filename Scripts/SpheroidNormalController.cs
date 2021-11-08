@@ -58,6 +58,12 @@ namespace KageKirin.SpheroidNormal
 
 
 #region construct and init
+        void Start()
+        {
+            // enable global shader state
+            Shader.EnableKeyword("SPHEROID_NORMAL_BUFFER_ON");
+        }
+
         // OnEnable() | OnDisable() called when script becomes enabled|disabled
         void OnEnable()
         {
